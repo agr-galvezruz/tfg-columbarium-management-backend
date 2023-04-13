@@ -20,3 +20,13 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+Route::post('/register', [AuthController::class, 'register']);
+Route::post('v1/login', [AuthController::class, 'login']);
+
+// api/v1
+Route::group(['prefix' => 'v1', 'mamespace' => 'App\Http\Controllers\Api\V1', 'middleware' => 'auth:sanctum'], function() {
+  Route::get('/logout', [AuthController::class, 'logout']);
+  Route::apiResource('caskets', CasketController::class);
+  Route::apiResource('people', PersonController::class);
+});
