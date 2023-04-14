@@ -22,7 +22,7 @@ return new class extends Migration
             $table->string('state');
             $table->string('postal_code');
             $table->string('phone');
-            $table->integer('casket_id')->nullable();
+            $table->foreignId('casket_id')->nullable();
             $table->timestamps();
         });
     }
