@@ -16,4 +16,12 @@ class Casket extends Model
     public function people() {
       return $this->hasMany(Person::class);
     }
+
+    public function relocations() {
+      return $this->hasMany(Relocation::class);
+    }
+
+    public function deposits() {
+      return $this->hasMany(Deposit::class);
+    }
 }
