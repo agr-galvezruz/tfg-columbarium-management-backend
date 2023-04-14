@@ -5,23 +5,26 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Casket extends Model
+class Urn extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-      'description'
+      'internal_code',
+      'status',
+      'description',
+      'niche_id'
     ];
 
-    public function people() {
-      return $this->hasMany(Person::class);
+    public function niche() {
+      return $this->belongsTo(Niche::class);
     }
 
     public function relocations() {
       return $this->hasMany(Relocation::class);
     }
 
-    public function deposits() {
-      return $this->hasMany(Deposit::class);
+    public function reservations() {
+      return $this->hasMany(Reservation::class);
     }
 }
