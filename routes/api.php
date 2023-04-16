@@ -1,10 +1,11 @@
 <?php
 
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\CasketController;
 use App\Http\Controllers\Api\V1\PersonController;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\V1\BuildingController;
 
 /*
 |--------------------------------------------------------------------------
@@ -27,6 +28,8 @@ Route::post('v1/login', [AuthController::class, 'login']);
 // api/v1
 Route::group(['prefix' => 'v1', 'mamespace' => 'App\Http\Controllers\Api\V1', 'middleware' => 'auth:sanctum'], function() {
   Route::get('/logout', [AuthController::class, 'logout']);
+  Route::get('/buildings/getAllBuildingsNoPaginated', [BuildingController::class, 'getAllBuildingsNoPaginated']);
+  Route::apiResource('buildings', BuildingController::class);
   Route::apiResource('caskets', CasketController::class);
   Route::apiResource('people', PersonController::class);
 });

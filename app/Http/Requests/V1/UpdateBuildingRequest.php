@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\V1;
 
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -11,7 +11,7 @@ class UpdateBuildingRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -21,8 +21,19 @@ class UpdateBuildingRequest extends FormRequest
      */
     public function rules(): array
     {
+      $method = $this->method();
+      if ($method == 'PUT') {
         return [
-            //
+          'internalCode' => ['required', 'unique:buildings,internal_code,'. $this->id .',id'],
+          'name' => ['required', 'unique:buildings,name,'. $this->id .',id'],
+          'address' => ['required']
         ];
+      }
+    }
+
+    protected function prepareForValidation() {
+      $this->merge([
+        'internal_code' => $this->internalCode
+      ]);
     }
 }
