@@ -36,7 +36,7 @@ class BuildingController extends Controller
      */
     public function getAllBuildingsNoPaginated()
     {
-      $buildings = Building::get();
+      $buildings = Building::orderBy('internal_code')->get();
       return new BuildingCollection($buildings);
     }
 
