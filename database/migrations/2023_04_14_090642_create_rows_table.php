@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('rows', function (Blueprint $table) {
             $table->id();
-            $table->string('internal_code')->unique();
+            $table->string('internal_code');
             $table->text('description')->nullable();
             $table->foreignId('room_id');
             $table->timestamps();

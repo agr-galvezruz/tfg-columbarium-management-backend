@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('urns', function (Blueprint $table) {
             $table->id();
-            $table->string('internal_code')->unique();
+            $table->string('internal_code');
             $table->enum('status', ['busy', 'reserved', 'available']);
             $table->text('description')->nullable();
             $table->foreignId('niche_id');

@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('niches', function (Blueprint $table) {
             $table->id();
-            $table->string('internal_code')->unique();
+            $table->string('internal_code');
             $table->integer('storage_quantity');
             $table->text('description')->nullable();
             $table->foreignId('row_id');
