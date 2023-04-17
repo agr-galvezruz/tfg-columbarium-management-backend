@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\V1\RowController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\RoomController;
 use App\Http\Controllers\Api\V1\CasketController;
@@ -34,7 +35,11 @@ Route::group(['prefix' => 'v1', 'mamespace' => 'App\Http\Controllers\Api\V1', 'm
   Route::apiResource('buildings', BuildingController::class);
 
   Route::get('/rooms/getRoomsFromBuilding', [RoomController::class, 'getRoomsFromBuilding']);
+  Route::get('/rooms/getAllRoomsFromBuildingNoPagination/{buildingId}', [RoomController::class, 'getAllRoomsFromBuildingNoPagination']);
   Route::apiResource('rooms', RoomController::class);
+
+  Route::get('/rows/getRowsFromRoom', [RowController::class, 'getRowsFromRoom']);
+  Route::apiResource('rows', RowController::class);
 
   Route::apiResource('caskets', CasketController::class);
 

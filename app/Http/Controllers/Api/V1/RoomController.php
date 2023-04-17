@@ -6,12 +6,10 @@ use App\Models\Room;
 use Illuminate\Http\Request;
 use App\Filters\V1\RoomFilter;
 use App\Http\Controllers\Controller;
-use Illuminate\Database\Eloquent\Builder;
 use App\Http\Requests\V1\StoreRoomRequest;
 use App\Http\Requests\V1\UpdateRoomRequest;
 use App\Http\Resources\V1\Room\RoomResource;
 use App\Http\Resources\V1\Room\RoomCollection;
-use Illuminate\Support\Facades\DB;
 
 class RoomController extends Controller
 {
@@ -64,6 +62,15 @@ class RoomController extends Controller
       }
 
       return new RoomCollection($rooms->orderBy('internal_code')->paginate(25)->appends($request->query()));
+    }
+
+    /**
+     * Display a listing of the resource by dependency id.
+     */
+    public function getAllRoomsFromBuildingNoPagination($buildingId)
+    {
+      $rooms = Room::where('building_id', '=', $buildingId)->orderBy('internal_code')->get();
+      return new RoomCollection($rooms);
     }
 
     /**
