@@ -65,6 +65,15 @@ class RowController extends Controller
     }
 
     /**
+     * Display a listing of the resource by dependency id.
+     */
+    public function getAllRowsFromRoomNoPagination($roomId)
+    {
+      $rows = Row::where('room_id', '=', $roomId)->orderBy('internal_code')->get();
+      return new RowCollection($rows);
+    }
+
+    /**
      * Store a newly created resource in storage.
      */
     public function store(StoreRowRequest $request)
@@ -78,7 +87,10 @@ class RowController extends Controller
     public function show(Row $row)
     {
       $includeRoom = request()->query('includeRoom');
-      if($includeRoom) {
+      $includeBuilding = request()->query('includeBuilding');
+      if($includeRoom && $includeBuilding) {
+        $row = $row->loadMissing('room.building'); // Get relationship of relationship (cascade)
+      } else if ($includeRoom) {
         $row = $row->loadMissing('room');
       }
 
