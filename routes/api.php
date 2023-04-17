@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\V1\RowController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\RoomController;
+use App\Http\Controllers\Api\V1\NicheController;
 use App\Http\Controllers\Api\V1\CasketController;
 use App\Http\Controllers\Api\V1\PersonController;
 use App\Http\Controllers\Api\V1\BuildingController;
@@ -39,7 +40,11 @@ Route::group(['prefix' => 'v1', 'mamespace' => 'App\Http\Controllers\Api\V1', 'm
   Route::apiResource('rooms', RoomController::class);
 
   Route::get('/rows/getRowsFromRoom', [RowController::class, 'getRowsFromRoom']);
+  Route::get('/rows/getAllRowsFromRoomNoPagination/{roomId}', [RowController::class, 'getAllRowsFromRoomNoPagination']);
   Route::apiResource('rows', RowController::class);
+
+  Route::get('/niches/getNichesFromRow', [NicheController::class, 'getNichesFromRow']);
+  Route::apiResource('niches', NicheController::class);
 
   Route::apiResource('caskets', CasketController::class);
 
