@@ -22,7 +22,8 @@ return new class extends Migration
             $table->string('state');
             $table->string('postal_code');
             $table->string('phone');
-            $table->foreignId('casket_id')->nullable();
+            $table->unsignedBigInteger('casket_id')->nullable();
+            $table->foreign('casket_id')->references('id')->on('caskets')->onDelete('cascade');
             $table->timestamps();
         });
     }

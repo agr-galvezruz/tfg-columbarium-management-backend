@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('urns', function (Blueprint $table) {
             $table->id();
             $table->string('internal_code');
-            $table->enum('status', ['busy', 'reserved', 'available']);
+            $table->enum('status', ['OCCUPIED', 'RESERVED', 'AVAILABLE', 'DISABLED']);
             $table->text('description')->nullable();
             $table->foreignId('niche_id');
             $table->timestamps();

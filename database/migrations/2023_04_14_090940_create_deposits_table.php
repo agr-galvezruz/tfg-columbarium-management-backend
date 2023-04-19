@@ -16,9 +16,12 @@ return new class extends Migration
             $table->dateTime('start_date');
             $table->dateTime('end_date')->nullable();
             $table->text('description')->nullable();
-            $table->foreignId('reservation_id');
-            $table->foreignId('person_id');
-            $table->foreignId('casket_id');
+            $table->unsignedBigInteger('reservation_id');
+            $table->foreign('reservation_id')->references('id')->on('reservations')->onDelete('cascade');
+            $table->unsignedBigInteger('person_id');
+            $table->foreign('person_id')->references('id')->on('people')->onDelete('cascade');
+            $table->unsignedBigInteger('casket_id');
+            $table->foreign('casket_id')->references('id')->on('caskets')->onDelete('cascade');
             $table->timestamps();
         });
     }

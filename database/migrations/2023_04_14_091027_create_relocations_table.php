@@ -15,8 +15,10 @@ return new class extends Migration
             $table->id();
             $table->dateTime('date');
             $table->text('description')->nullable();
-            $table->foreignId('urn_id');
-            $table->foreignId('casket_id');
+            $table->unsignedBigInteger('urn_id');
+            $table->foreign('urn_id')->references('id')->on('urns')->onDelete('cascade');
+            $table->unsignedBigInteger('casket_id');
+            $table->foreign('casket_id')->references('id')->on('caskets')->onDelete('cascade');
             $table->timestamps();
         });
     }

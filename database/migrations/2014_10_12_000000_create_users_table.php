@@ -16,7 +16,8 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->string('password');
             $table->enum('rol', ['admin', 'consultant']);
-            $table->foreignId('person_id')->unique();
+            $table->unsignedBigInteger('person_id')->unique();
+            $table->foreign('person_id')->references('id')->on('people')->onDelete('cascade');
             $table->timestamps();
         });
     }
