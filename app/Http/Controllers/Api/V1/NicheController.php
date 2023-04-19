@@ -71,6 +71,15 @@ class NicheController extends Controller
     }
 
     /**
+     * Display a listing of the resource by dependency id.
+     */
+    public function getAllNichesFromRowNoPagination($rowId)
+    {
+      $niches = Niche::where('row_id', '=', $rowId)->orderBy('internal_code')->get();
+      return new NicheCollection($niches);
+    }
+
+    /**
      * Store a newly created resource in storage.
      */
     public function store(StoreNicheRequest $request)
@@ -85,7 +94,10 @@ class NicheController extends Controller
     {
       $includeRow = request()->query('includeRow');
       $includeRoom = request()->query('includeRoom');
-      if ($includeRow && $includeRoom) {
+      $includeBuilding = request()->query('includeBuilding');
+      if ($includeRow && $includeRoom && $includeBuilding) {
+        $niche = $niche->loadMissing('row.room.building'); // Get relationship of relationship (cascade)
+      } else if ($includeRow && $includeRoom) {
         $niche = $niche->loadMissing('row.room'); // Get relationship of relationship (cascade)
       } else if ($includeRow) {
         $niche = $niche->loadMissing('row');

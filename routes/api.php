@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\V1\UrnController;
 use App\Http\Controllers\Api\V1\RowController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\RoomController;
@@ -44,7 +45,11 @@ Route::group(['prefix' => 'v1', 'mamespace' => 'App\Http\Controllers\Api\V1', 'm
   Route::apiResource('rows', RowController::class);
 
   Route::get('/niches/getNichesFromRow', [NicheController::class, 'getNichesFromRow']);
+  Route::get('/rows/getAllNichesFromRowNoPagination/{rowId}', [NicheController::class, 'getAllNichesFromRowNoPagination']);
   Route::apiResource('niches', NicheController::class);
+
+  Route::get('/urns/getUrnsFromNiche', [UrnController::class, 'getUrnsFromNiche']);
+  Route::apiResource('urns', UrnController::class);
 
   Route::apiResource('caskets', CasketController::class);
 
