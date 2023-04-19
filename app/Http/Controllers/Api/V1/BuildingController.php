@@ -69,6 +69,7 @@ class BuildingController extends Controller
     public function update(UpdateBuildingRequest $request, Building $building)
     {
       $building->update($request->all());
+      $this->updateChilds($building);
     }
 
     /**
@@ -77,5 +78,33 @@ class BuildingController extends Controller
     public function destroy(Building $building)
     {
       $building->delete();
+    }
+
+    public function updateChilds($building) {
+      $buildingWithRooms = new BuildingResource(Building::with(array('rooms' => function($query) {
+        $query->orderBy('internal_code', 'ASC');
+      }))->find($building->id));
+
+      $rooms = $buildingWithRooms->rooms;
+
+      // Check if building (parent) internal code has changed to update all rooms (child) internal code
+      if (count($rooms) > 0) {
+        $roomsUpdate = [];
+
+        foreach ($rooms as $index => $room) {
+          $rowRoomInternalCode = substr($room->internal_code, 0, strrpos($room->internal_code, '-', 0)); // Get building internal code from room 01-01-01
+          $rowSingleInternalCode = substr($room->internal_code, strrpos($room->internal_code, '-') + 1); // Get room single part internal code 01
+
+          if ($rowRoomInternalCode != $building->internal_code) { // If are diferent we need to update to the new building internal code
+            $roomsUpdate[] = [
+              'id' => $room->id,
+              'internal_code' => $building->internal_code.'-'.$rowSingleInternalCode,
+              'building_id' => $room->building_id,
+              'description' => $room->description
+            ];
+          }
+        }
+        (new RoomController)->bulkUpdate((object) $roomsUpdate);
+      }
     }
 }

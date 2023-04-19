@@ -138,4 +138,21 @@ class UrnController extends Controller
     {
       $urn->delete();
     }
+
+    public function bulkStore($urns)
+    {
+      Urn::insert($urns);
+    }
+
+    public function bulkUpdate($urns)
+    {
+      foreach ($urns as $urn) {
+        Urn::find($urn['id'])->update($urn);
+      }
+    }
+
+    public function bulkDelete($urns)
+    {
+      Urn::destroy($urns);
+    }
 }

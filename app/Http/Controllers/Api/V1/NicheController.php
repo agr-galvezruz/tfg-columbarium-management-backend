@@ -84,7 +84,22 @@ class NicheController extends Controller
      */
     public function store(StoreNicheRequest $request)
     {
-      return new NicheResource(Niche::create($request->all()));
+      $niche = new NicheResource(Niche::create($request->all()));
+
+      if ($niche->storage_quantity > 0) {
+        $urns = [];
+        for ($i=0; $i < $niche->storage_quantity; $i++) {
+          $urns[] = [
+            'internal_code' => $niche->internal_code.'-'.sprintf("%02d", $i+1),
+            'status' => 'AVAILABLE',
+            'niche_id' => $niche->id,
+            'description' => null
+          ];
+        }
+        (new UrnController)->bulkStore($urns);
+      }
+
+      return $niche;
     }
 
     /**
@@ -117,6 +132,8 @@ class NicheController extends Controller
     public function update(UpdateNicheRequest $request, Niche $niche)
     {
       $niche->update($request->all());
+      $this->updateChilds($niche);
+      $this->addOrDeleteUrnsDependingStorage($niche);
     }
 
     /**
@@ -125,5 +142,84 @@ class NicheController extends Controller
     public function destroy(Niche $niche)
     {
       $niche->delete();
+    }
+
+    public function bulkUpdate($niches)
+    {
+      foreach ($niches as $niche) {
+        Niche::find($niche['id'])->update($niche);
+        $this->updateChilds((object) $niche);
+      }
+    }
+
+    public function updateChilds($niche) {
+      $nicheWithUrns = new NicheResource(Niche::with(array('urns' => function($query) {
+        $query->orderBy('internal_code', 'ASC');
+      }))->find($niche->id));
+
+      $urns = $nicheWithUrns->urns;
+
+      // Check if niche (parent) internal code has changed to update all urns (child) internal code
+      if (count($urns) > 0) {
+        $urnsUpdate = [];
+
+        foreach ($urns as $index => $urn) {
+          $urnNicheInternalCode = substr($urn->internal_code, 0, strrpos($urn->internal_code, '-', 0)); // Get niche internal code from urn 01-01-01-01
+          $urnSingleInternalCode = substr($urn->internal_code, strrpos($urn->internal_code, '-') + 1); // Get urn single part internal code 01
+
+          if ($urnNicheInternalCode != $niche->internal_code) { // If are diferent we need to update to the new niche internal code
+            $urnsUpdate[] = [
+              'id' => $urn->id,
+              'internal_code' => $niche->internal_code.'-'.$urnSingleInternalCode,
+              'status' => $urn->status,
+              'niche_id' => $urn->niche_id,
+              'description' => $urn->description
+            ];
+          }
+        }
+        (new UrnController)->bulkUpdate($urnsUpdate);
+      }
+    }
+
+    private function addOrDeleteUrnsDependingStorage($niche) {
+      $nicheWithUrns = new NicheResource(Niche::with(array('urns' => function($query) {
+        $query->orderBy('internal_code', 'ASC');
+      }))->find($niche->id));
+
+      $urns = $nicheWithUrns->urns;
+
+      if ($niche->storage_quantity == count($urns)) {
+        return;
+      }
+
+      // Delete leftover urns
+      if ($niche->storage_quantity < count($urns)) {
+        $urnsDelete = [];
+        foreach ($urns as $key => $value) {
+          if ($key >= $niche->storage_quantity) {
+            $urnsDelete[] = $value->id;
+          }
+        }
+        (new UrnController)->bulkDelete($urnsDelete);
+        return;
+      }
+
+      // Add urns
+      if ($niche->storage_quantity > count($urns)) {
+        $urnsInsert = [];
+        $lastUrnInserted = $urns[count($urns) - 1];
+        $lastInternalCodeUsed = substr($lastUrnInserted->internal_code, strrpos($lastUrnInserted->internal_code, '-') + 1); // Get urn single part internal code 01
+
+        for ($i = intval($lastInternalCodeUsed); $i < $niche->storage_quantity; $i++) {
+          $urnsInsert[] = [
+            'internal_code' => $niche->internal_code.'-'.sprintf("%02d", $i+1),
+            'status' => 'AVAILABLE',
+            'niche_id' => $niche->id,
+            'description' => null
+          ];
+        }
+        (new UrnController)->bulkStore($urnsInsert);
+        return;
+      }
     }
 }

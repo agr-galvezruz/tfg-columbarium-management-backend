@@ -105,6 +105,7 @@ class RoomController extends Controller
     public function update(UpdateRoomRequest $request, Room $room)
     {
       $room->update($request->all());
+      $this->updateChilds($room);
     }
 
     /**
@@ -113,5 +114,41 @@ class RoomController extends Controller
     public function destroy(Room $room)
     {
       $room->delete();
+    }
+
+    public function bulkUpdate($rooms)
+    {
+      foreach ($rooms as $room) {
+        Room::find($room['id'])->update($room);
+        $this->updateChilds((object) $room);
+      }
+    }
+
+    public function updateChilds($room) {
+      $roomWithRows = new RoomResource(Room::with(array('rows' => function($query) {
+        $query->orderBy('internal_code', 'ASC');
+      }))->find($room->id));
+
+      $rows = $roomWithRows->rows;
+
+      // Check if room (parent) internal code has changed to update all rows (child) internal code
+      if (count($rows) > 0) {
+        $rowsUpdate = [];
+
+        foreach ($rows as $index => $row) {
+          $rowRoomInternalCode = substr($row->internal_code, 0, strrpos($row->internal_code, '-', 0)); // Get room internal code from row 01-01-01
+          $rowSingleInternalCode = substr($row->internal_code, strrpos($row->internal_code, '-') + 1); // Get row single part internal code 01
+
+          if ($rowRoomInternalCode != $room->internal_code) { // If are diferent we need to update to the new room internal code
+            $rowsUpdate[] = [
+              'id' => $row->id,
+              'internal_code' => $room->internal_code.'-'.$rowSingleInternalCode,
+              'room_id' => $row->room_id,
+              'description' => $row->description
+            ];
+          }
+        }
+        (new RowController)->bulkUpdate((object) $rowsUpdate);
+      }
     }
 }

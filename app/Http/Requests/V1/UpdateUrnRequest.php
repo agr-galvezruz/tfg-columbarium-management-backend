@@ -26,7 +26,7 @@ class UpdateUrnRequest extends FormRequest
       if ($method == 'PUT') {
         return [
           'internalCode' => ['required', 'unique:urns,internal_code,'. $this->id .',id,niche_id,'. $this->niche_id],
-          'status' => Rule::in(['OCCUPIED', 'RESERVED', 'AVAILABLE', 'DISABLED']),
+          'status' => ['required', Rule::in(['OCCUPIED', 'RESERVED', 'AVAILABLE', 'DISABLED'])],
           'nicheId' => ['required']
         ];
       }

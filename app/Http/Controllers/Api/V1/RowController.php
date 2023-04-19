@@ -108,6 +108,7 @@ class RowController extends Controller
     public function update(UpdateRowRequest $request, Row $row)
     {
       $row->update($request->all());
+      $this->updateChilds($row);
     }
 
     /**
@@ -116,5 +117,42 @@ class RowController extends Controller
     public function destroy(Row $row)
     {
       $row->delete();
+    }
+
+    public function bulkUpdate($rows)
+    {
+      foreach ($rows as $row) {
+        Row::find($row['id'])->update($row);
+        $this->updateChilds((object) $row);
+      }
+    }
+
+    public function updateChilds($row) {
+      $rowWithNiches = new RowResource(Row::with(array('niches' => function($query) {
+        $query->orderBy('internal_code', 'ASC');
+      }))->find($row->id));
+
+      $niches = $rowWithNiches->niches;
+
+      // Check if row (parent) internal code has changed to update all niches (child) internal code
+      if (count($niches) > 0) {
+        $nichesUpdate = [];
+
+        foreach ($niches as $index => $niche) {
+          $nicheRowInternalCode = substr($niche->internal_code, 0, strrpos($niche->internal_code, '-', 0)); // Get row internal code from niche 01-01-01
+          $nicheSingleInternalCode = substr($niche->internal_code, strrpos($niche->internal_code, '-') + 1); // Get niche single part internal code 01
+
+          if ($nicheRowInternalCode != $row->internal_code) { // If are diferent we need to update to the new row internal code
+            $nichesUpdate[] = [
+              'id' => $niche->id,
+              'internal_code' => $row->internal_code.'-'.$nicheSingleInternalCode,
+              'storage_quantity' => $niche->storage_quantity,
+              'row_id' => $niche->row_id,
+              'description' => $niche->description
+            ];
+          }
+        }
+        (new NicheController)->bulkUpdate((object) $nichesUpdate);
+      }
     }
 }
