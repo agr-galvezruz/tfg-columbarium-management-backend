@@ -144,6 +144,18 @@ class NicheController extends Controller
       $niche->delete();
     }
 
+    public function updateStorageQuantity($nicheId) {
+      $niche = Niche::with('urns')->find($nicheId);
+      if ($niche && ($niche->storage_quantity != count($niche->urns))) {
+        Niche::find($niche->id)->update([
+          'internal_code' => $niche->internal_code,
+          'storage_quantity' => count($niche->urns),
+          'row_id' => $niche->row_id,
+          'description' => $niche->description
+        ]);
+      }
+    }
+
     public function bulkUpdate($niches)
     {
       foreach ($niches as $niche) {

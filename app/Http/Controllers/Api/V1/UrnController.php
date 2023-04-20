@@ -91,7 +91,9 @@ class UrnController extends Controller
      */
     public function store(StoreUrnRequest $request)
     {
-      return new UrnResource(Urn::create($request->all()));
+      $urn = new UrnResource(Urn::create($request->all()));
+      (new NicheController)->updateStorageQuantity($urn->niche_id);
+      return $urn;
     }
 
     /**
@@ -137,6 +139,7 @@ class UrnController extends Controller
     public function destroy(Urn $urn)
     {
       $urn->delete();
+      (new NicheController)->updateStorageQuantity($urn->niche_id);
     }
 
     public function bulkStore($urns)
