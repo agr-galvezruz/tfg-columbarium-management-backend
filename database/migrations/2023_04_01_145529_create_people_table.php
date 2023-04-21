@@ -22,6 +22,10 @@ return new class extends Migration
             $table->string('state');
             $table->string('postal_code');
             $table->string('phone');
+            $table->string('email')->nullable();
+            $table->enum('marital_status', ['SINGLE', 'MARRIED', 'UNION', 'SEPARATE', 'DIVORCED', 'WIDOWER'])->nullable();
+            $table->date('birthdate')->nullable();
+            $table->date('deathdate')->nullable();
             $table->unsignedBigInteger('casket_id')->nullable();
             $table->foreign('casket_id')->references('id')->on('caskets')->onDelete('cascade');
             $table->timestamps();

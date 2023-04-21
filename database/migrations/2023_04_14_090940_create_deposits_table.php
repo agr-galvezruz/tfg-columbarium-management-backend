@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->dateTime('start_date');
             $table->dateTime('end_date')->nullable();
+            $table->string('deceased_relationship')->nullable();
             $table->text('description')->nullable();
             $table->unsignedBigInteger('reservation_id');
             $table->foreign('reservation_id')->references('id')->on('reservations')->onDelete('cascade');

@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\V1\NicheController;
 use App\Http\Controllers\Api\V1\CasketController;
 use App\Http\Controllers\Api\V1\PersonController;
 use App\Http\Controllers\Api\V1\BuildingController;
+use App\Http\Controllers\Api\V1\ProvinceController;
 
 /*
 |--------------------------------------------------------------------------
@@ -50,6 +51,8 @@ Route::group(['prefix' => 'v1', 'mamespace' => 'App\Http\Controllers\Api\V1', 'm
 
   Route::get('/urns/getUrnsFromNiche', [UrnController::class, 'getUrnsFromNiche']);
   Route::apiResource('urns', UrnController::class);
+
+  Route::apiResource('provinces', ProvinceController::class);
 
   Route::apiResource('caskets', CasketController::class);
 
