@@ -5,7 +5,7 @@ namespace App\Http\Requests\V1;
 use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class StorePersonRequest extends FormRequest
+class UpdatePersonRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,8 +22,10 @@ class StorePersonRequest extends FormRequest
      */
     public function rules(): array
     {
+      $method = $this->method();
+      if ($method == 'PUT') {
         return [
-          'dni' => ['required', 'unique:people,dni'],
+          'dni' => ['required', 'unique:people,dni,'. $this->id .',id'],
           'firstName' => ['required'],
           'lastName1' => ['required'],
           'lastName2' => ['required'],
@@ -34,6 +36,7 @@ class StorePersonRequest extends FormRequest
           'phone' => ['required'],
           'maritalStatus' => [Rule::in(['SINGLE','MARRIED','UNION','SEPARATE','DIVORCED','WIDOWER'])]
         ];
+      }
     }
 
     protected function prepareForValidation() {

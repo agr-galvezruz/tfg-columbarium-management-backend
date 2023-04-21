@@ -27,6 +27,10 @@ class PersonResource extends JsonResource
         'state' => $this->state,
         'postalCode' => $this->postal_code,
         'phone' => $this->phone,
+        'email' => $this->email,
+        'maritalStatus' => $this->marital_status,
+        'birthdate' => $this->birthdate,
+        'deathdate' => $this->deathdate,
         'casketId' => $this->casket_id,
         'casket' => new CasketResource($this->whenLoaded('casket')),
         'user' => new UserResource($this->whenLoaded('user'))

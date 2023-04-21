@@ -19,6 +19,10 @@ class Person extends Model
       'state',
       'postal_code',
       'phone',
+      'email',
+      'marital_status',
+      'birthdate',
+      'deathdate',
       'casket_id'
     ];
 

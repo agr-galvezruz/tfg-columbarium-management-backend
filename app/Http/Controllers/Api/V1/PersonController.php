@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Filters\V1\PersonFilter;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\V1\StorePersonRequest;
+use App\Http\Requests\V1\UpdatePersonRequest;
 use App\Http\Resources\V1\Person\PersonResource;
 use App\Http\Resources\V1\Person\PersonCollection;
 
@@ -32,7 +33,7 @@ class PersonController extends Controller
         $people = $people->with('user');
       }
 
-      return new PersonCollection($people->paginate(2)->appends($request->query()));
+      return new PersonCollection($people->paginate(25)->appends($request->query()));
     }
 
     /**
@@ -64,7 +65,7 @@ class PersonController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(StorePersonRequest $request, Person $person)
+    public function update(UpdatePersonRequest $request, Person $person)
     {
       $person->update($request->all());
     }
