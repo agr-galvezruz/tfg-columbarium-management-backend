@@ -36,6 +36,24 @@ class PersonController extends Controller
       return new PersonCollection($people->paginate(25)->appends($request->query()));
     }
 
+    public function getAllPeopleNoInCasket()
+    {
+      $people = Person::whereNull('casket_id')->orderBy('last_name_1')->orderBy('last_name_2')->orderBy('first_name')->orderBy('dni')->get();
+      return new PersonCollection($people);
+    }
+
+    public function getAllPeopleInCasket($casketId)
+    {
+      $people = Person::where('casket_id', '=', $casketId)->orderBy('last_name_1')->orderBy('last_name_2')->orderBy('first_name')->orderBy('dni')->get();
+      return new PersonCollection($people);
+    }
+
+    public function checkExistDni($dni)
+    {
+      $people = Person::where('dni', '=', $dni)->get();
+      return new PersonCollection($people);
+    }
+
     /**
      * Store a newly created resource in storage.
      */

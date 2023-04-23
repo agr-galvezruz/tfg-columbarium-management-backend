@@ -54,7 +54,12 @@ Route::group(['prefix' => 'v1', 'mamespace' => 'App\Http\Controllers\Api\V1', 'm
 
   Route::apiResource('provinces', ProvinceController::class);
 
+  Route::post('/caskets/createCasketWithPeople', [CasketController::class, 'createCasketWithPeople']);
+  Route::post('/caskets/updateCasketWithPeople', [CasketController::class, 'updateCasketWithPeople']);
   Route::apiResource('caskets', CasketController::class);
 
+  Route::get('/people/getAllPeopleNoInCasket', [PersonController::class, 'getAllPeopleNoInCasket']);
+  Route::get('/people/getAllPeopleInCasket/{casketId}', [PersonController::class, 'getAllPeopleInCasket']);
+  Route::get('/people/checkExistDni/{dni}', [PersonController::class, 'checkExistDni']);
   Route::apiResource('people', PersonController::class);
 });
