@@ -16,7 +16,8 @@ return new class extends Migration
             $table->string('internal_code');
             $table->enum('status', ['OCCUPIED', 'RESERVED', 'AVAILABLE', 'DISABLED']);
             $table->text('description')->nullable();
-            $table->foreignId('niche_id');
+            $table->unsignedBigInteger('niche_id');
+            // $table->foreign('niche_id')->references('id')->on('niches')->onDelete('cascade');
             $table->timestamps();
         });
     }

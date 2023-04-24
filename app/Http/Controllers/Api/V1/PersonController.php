@@ -10,6 +10,7 @@ use App\Http\Requests\V1\StorePersonRequest;
 use App\Http\Requests\V1\UpdatePersonRequest;
 use App\Http\Resources\V1\Person\PersonResource;
 use App\Http\Resources\V1\Person\PersonCollection;
+use App\Models\User;
 
 class PersonController extends Controller
 {
@@ -39,6 +40,17 @@ class PersonController extends Controller
     public function getAllPeopleNoInCasket()
     {
       $people = Person::whereNull('casket_id')->orderBy('last_name_1')->orderBy('last_name_2')->orderBy('first_name')->orderBy('dni')->get();
+      return new PersonCollection($people);
+    }
+
+    public function getAllPeopleNoInCasketNoUsers()
+    {
+      $users = User::get();
+      $peopleIds = [];
+      foreach ($users as $user) {
+        $peopleIds[] = $user->person_id;
+      }
+      $people = Person::whereNull('casket_id')->whereNotIn('id', $peopleIds)->orderBy('last_name_1')->orderBy('last_name_2')->orderBy('first_name')->orderBy('dni')->get();
       return new PersonCollection($people);
     }
 

@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('location');
             $table->text('description')->nullable();
             $table->unsignedBigInteger('building_id');
-            $table->foreign('building_id')->references('id')->on('buildings')->onDelete('cascade');
+            // $table->foreign('building_id')->references('id')->on('buildings')->onDelete('cascade');
             $table->timestamps();
         });
     }

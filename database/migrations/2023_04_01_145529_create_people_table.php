@@ -27,7 +27,7 @@ return new class extends Migration
             $table->date('birthdate')->nullable();
             $table->date('deathdate')->nullable();
             $table->unsignedBigInteger('casket_id')->nullable();
-            $table->foreign('casket_id')->references('id')->on('caskets')->onDelete('cascade');
+            // $table->foreign('casket_id')->references('id')->on('caskets')->onDelete('cascade');
             $table->timestamps();
         });
     }

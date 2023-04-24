@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\V1\CasketController;
 use App\Http\Controllers\Api\V1\PersonController;
 use App\Http\Controllers\Api\V1\BuildingController;
 use App\Http\Controllers\Api\V1\ProvinceController;
+use App\Http\Controllers\Api\V1\UserController;
 
 /*
 |--------------------------------------------------------------------------
@@ -27,7 +28,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::post('/register', [AuthController::class, 'register']);
+Route::post('v1/register', [AuthController::class, 'register']);
 Route::post('v1/login', [AuthController::class, 'login']);
 
 // api/v1
@@ -54,11 +55,15 @@ Route::group(['prefix' => 'v1', 'mamespace' => 'App\Http\Controllers\Api\V1', 'm
 
   Route::apiResource('provinces', ProvinceController::class);
 
+  Route::put('/users/updateUser', [UserController::class, 'updateUser']);
+  Route::apiResource('users', UserController::class);
+
   Route::post('/caskets/createCasketWithPeople', [CasketController::class, 'createCasketWithPeople']);
   Route::post('/caskets/updateCasketWithPeople', [CasketController::class, 'updateCasketWithPeople']);
   Route::apiResource('caskets', CasketController::class);
 
   Route::get('/people/getAllPeopleNoInCasket', [PersonController::class, 'getAllPeopleNoInCasket']);
+  Route::get('/people/getAllPeopleNoInCasketNoUsers', [PersonController::class, 'getAllPeopleNoInCasketNoUsers']);
   Route::get('/people/getAllPeopleInCasket/{casketId}', [PersonController::class, 'getAllPeopleInCasket']);
   Route::get('/people/checkExistDni/{dni}', [PersonController::class, 'checkExistDni']);
   Route::apiResource('people', PersonController::class);

@@ -17,9 +17,9 @@ return new class extends Migration
             $table->dateTime('end_date')->nullable();
             $table->text('description')->nullable();
             $table->unsignedBigInteger('urn_id');
-            $table->foreign('urn_id')->references('id')->on('urns')->onDelete('cascade');
+            // $table->foreign('urn_id')->references('id')->on('urns')->onDelete('cascade');
             $table->unsignedBigInteger('person_id');
-            $table->foreign('person_id')->references('id')->on('people')->onDelete('cascade');
+            // $table->foreign('person_id')->references('id')->on('people')->onDelete('cascade');
             $table->timestamps();
         });
     }

@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('internal_code');
             $table->text('description')->nullable();
             $table->unsignedBigInteger('room_id');
-            $table->foreign('room_id')->references('id')->on('rooms')->onDelete('cascade');
+            // $table->foreign('room_id')->references('id')->on('rooms')->onDelete('cascade');
             $table->timestamps();
         });
     }

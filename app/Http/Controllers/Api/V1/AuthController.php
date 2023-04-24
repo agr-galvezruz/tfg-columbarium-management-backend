@@ -12,14 +12,14 @@ class AuthController extends Controller
 {
     public function register(Request $request) {
       $validateData = $request->validate([
-        'email' => 'required|string|email|unique:users',
+        // 'email' => 'required|string|email|unique:users',
         'password' => 'required|string',
         'rol' => 'required',
         'personId' => 'required',
       ]);
 
       $user = User::create([
-        'email' => $validateData['email'],
+        // 'email' => $validateData['email'],
         'password' => Hash::make($validateData['password']),
         'rol' => $validateData['rol'],
         'person_id' => $validateData['personId'],
@@ -34,17 +34,18 @@ class AuthController extends Controller
     }
 
     public function login(Request $request) {
-      if (!Auth::attempt($request->only('email', 'password'))) {
+      if (!Auth::attempt($request->only('id', 'password'))) {
         return response()->json([
           'message' => 'Invalid login details'
         ], 403);
       }
 
-      $user = User::where('email', $request['email'])->firstOrFail();
+      $user = User::where('id', '=', $request['id'])->with('person')->firstOrFail();
 
       $token = $user->createToken('auth_token')->plainTextToken;
 
       return response()->json([
+        'user' => $user,
         'access_token' => $token,
         'token_type' => 'Bearer'
       ]);

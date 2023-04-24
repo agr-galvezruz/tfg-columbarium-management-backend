@@ -18,11 +18,11 @@ return new class extends Migration
             $table->string('deceased_relationship')->nullable();
             $table->text('description')->nullable();
             $table->unsignedBigInteger('reservation_id');
-            $table->foreign('reservation_id')->references('id')->on('reservations')->onDelete('cascade');
+            // $table->foreign('reservation_id')->references('id')->on('reservations')->onDelete('cascade');
             $table->unsignedBigInteger('person_id');
-            $table->foreign('person_id')->references('id')->on('people')->onDelete('cascade');
+            // $table->foreign('person_id')->references('id')->on('people')->onDelete('cascade');
             $table->unsignedBigInteger('casket_id');
-            $table->foreign('casket_id')->references('id')->on('caskets')->onDelete('cascade');
+            // $table->foreign('casket_id')->references('id')->on('caskets')->onDelete('cascade');
             $table->timestamps();
         });
     }
