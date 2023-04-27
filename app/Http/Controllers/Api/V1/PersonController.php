@@ -89,6 +89,11 @@ class PersonController extends Controller
         $person = $person->loadMissing('user');
       }
 
+      $includeReservations = request()->query('includeReservations');
+      if($includeReservations) {
+        $person = $person->loadMissing('reservations');
+      }
+
       return new PersonResource($person);
     }
 

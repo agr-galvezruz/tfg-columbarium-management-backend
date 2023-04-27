@@ -74,6 +74,18 @@ class RoomController extends Controller
     }
 
     /**
+     * Display a listing of the resource without pagination.
+     */
+    public function getAllRoomsByIdAndBuilding(Request $request)
+    {
+      $building_id = $request->buildingId;
+      $room_ids = $request->roomIds;
+
+      $rooms = Room::where('building_id', '=', $building_id)->whereIn('id', $room_ids)->orderBy('internal_code')->get();
+      return new RoomCollection($rooms);
+    }
+
+    /**
      * Store a newly created resource in storage.
      */
     public function store(StoreRoomRequest $request)

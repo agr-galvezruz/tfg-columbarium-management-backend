@@ -32,10 +32,11 @@ class CasketController extends Controller
           $filterByPeopleString = $peopleFilter['like'] ?? $anyFilter;
 
           $caskets = $caskets->whereHas('people', function($query) use ($filterByPeopleString) {
-            $query->where('first_name', 'like', '%'.$filterByPeopleString.'%')
-            ->orWhere('last_name_1', 'like', '%'.$filterByPeopleString.'%')
-            ->orWhere('last_name_2', 'like', '%'.$filterByPeopleString.'%')
-            ->orWhere('dni', 'like', '%'.$filterByPeopleString.'%');
+            $query->where(function($query) use ($filterByPeopleString) {
+              $name_wildcard = str_replace(' ', '%', $filterByPeopleString);
+              $name_wildcard = '%' . $name_wildcard . '%';
+              $query->whereRaw('CONCAT(first_name," ",last_name_1," ",last_name_2) LIKE ?', [$name_wildcard]);
+            });
           })->with('people');
         } else {
           $caskets = $caskets->with('people');

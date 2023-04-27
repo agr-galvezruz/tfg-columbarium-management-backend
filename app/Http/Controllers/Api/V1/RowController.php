@@ -74,6 +74,18 @@ class RowController extends Controller
     }
 
     /**
+     * Display a listing of the resource without pagination.
+     */
+    public function getAllRowsByIdAndRoom(Request $request)
+    {
+      $room_id = $request->roomId;
+      $row_ids = $request->rowIds;
+
+      $rows = Row::where('room_id', '=', $room_id)->whereIn('id', $row_ids)->orderBy('internal_code')->get();
+      return new RowCollection($rows);
+    }
+
+    /**
      * Store a newly created resource in storage.
      */
     public function store(StoreRowRequest $request)

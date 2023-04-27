@@ -5,6 +5,7 @@ namespace App\Http\Resources\V1\Person;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use App\Http\Resources\V1\Casket\CasketResource;
+use App\Http\Resources\V1\Reservation\ReservationResource;
 use App\Http\Resources\V1\User\UserResource;
 
 class PersonResource extends JsonResource
@@ -33,7 +34,8 @@ class PersonResource extends JsonResource
         'deathdate' => $this->deathdate,
         'casketId' => $this->casket_id,
         'casket' => new CasketResource($this->whenLoaded('casket')),
-        'user' => new UserResource($this->whenLoaded('user'))
+        'user' => new UserResource($this->whenLoaded('user')),
+        'reservations' => ReservationResource::collection($this->whenLoaded('reservations')),
       ];
     }
 }
