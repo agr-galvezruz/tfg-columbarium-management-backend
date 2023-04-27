@@ -37,4 +37,8 @@ class Person extends Model
     public function deposits() {
       return $this->hasMany(Deposit::class);
     }
+
+    public function reservations() {
+      return $this->hasMany(Reservation::class);
+    }
 }

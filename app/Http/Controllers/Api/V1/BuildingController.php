@@ -41,6 +41,16 @@ class BuildingController extends Controller
     }
 
     /**
+     * Display a listing of the resource without pagination.
+     */
+    public function getAllBuildingsById(Request $request)
+    {
+      $building_ids = $request->buildingIds;
+      $buildings = Building::whereIn('id', $building_ids)->orderBy('internal_code')->get();
+      return new BuildingCollection($buildings);
+    }
+
+    /**
      * Store a newly created resource in storage.
      */
     public function store(StoreBuildingRequest $request)

@@ -80,6 +80,18 @@ class NicheController extends Controller
     }
 
     /**
+     * Display a listing of the resource without pagination.
+     */
+    public function getAllNichesByIdAndRow(Request $request)
+    {
+      $row_id = $request->rowId;
+      $niche_ids = $request->nicheIds;
+
+      $niches = Niche::where('row_id', '=', $row_id)->whereIn('id', $niche_ids)->orderBy('internal_code')->get();
+      return new NicheCollection($niches);
+    }
+
+    /**
      * Store a newly created resource in storage.
      */
     public function store(StoreNicheRequest $request)

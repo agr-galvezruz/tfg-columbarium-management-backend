@@ -87,6 +87,18 @@ class UrnController extends Controller
     }
 
     /**
+     * Display a listing of the resource without pagination.
+     */
+    public function getAllUrnsByIdAndNiche(Request $request)
+    {
+      $niche_id = $request->nicheId;
+      $urn_ids = $request->urnIds;
+
+      $urns = Urn::where('niche_id', '=', $niche_id)->whereIn('id', $urn_ids)->orderBy('internal_code')->get();
+      return new UrnCollection($urns);
+    }
+
+    /**
      * Store a newly created resource in storage.
      */
     public function store(StoreUrnRequest $request)
@@ -104,12 +116,15 @@ class UrnController extends Controller
       $includeNiche = request()->query('includeNiche');
       $includeRow = request()->query('includeRow');
       $includeRoom = request()->query('includeRoom');
-      if ($includeNiche && $includeRow && $includeRoom) {
+      $includeBuilding = request()->query('includeBuilding');
+      if ($includeNiche && $includeRow && $includeRoom && $includeBuilding) {
+        $urn = $urn->loadMissing('niche.row.room.building'); // Get relationship of relationship (cascade)
+      } else if ($includeNiche && $includeRow && $includeRoom ) {
         $urn = $urn->loadMissing('niche.row.room'); // Get relationship of relationship (cascade)
       } else if ($includeNiche && $includeRow) {
         $urn = $urn->loadMissing('niche.row'); // Get relationship of relationship (cascade)
       } else if ($includeNiche) {
-        $urn = $urn->loadMissing('nichen');
+        $urn = $urn->loadMissing('niche');
       }
 
       $includeReservations = request()->query('includeReservations');
