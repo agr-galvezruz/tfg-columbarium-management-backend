@@ -18,6 +18,7 @@ class UrnController extends Controller
      */
     public function index(Request $request)
     {
+      $this->updateExpiredUrns();
       $filter = new UrnFilter();
       [$AndFilterItems, $OrFilterItems] = $filter->transform($request); //[['column', 'operator', 'value']]
 
@@ -140,6 +141,36 @@ class UrnController extends Controller
       return new UrnResource($urn);
     }
 
+    public function getUrnById($urnId)
+    {
+      $urn = Urn::where('id', $urnId);
+      $includeNiche = request()->query('includeNiche');
+      $includeRow = request()->query('includeRow');
+      $includeRoom = request()->query('includeRoom');
+      $includeBuilding = request()->query('includeBuilding');
+      if ($includeNiche && $includeRow && $includeRoom && $includeBuilding) {
+        $urn = $urn->with('niche.row.room.building'); // Get relationship of relationship (cascade)
+      } else if ($includeNiche && $includeRow && $includeRoom ) {
+        $urn = $urn->with('niche.row.room'); // Get relationship of relationship (cascade)
+      } else if ($includeNiche && $includeRow) {
+        $urn = $urn->with('niche.row'); // Get relationship of relationship (cascade)
+      } else if ($includeNiche) {
+        $urn = $urn->with('niche');
+      }
+
+      $includeReservations = request()->query('includeReservations');
+      if ($includeReservations) {
+        $urn = $urn->with('reservations');
+      }
+
+      $includeRelocations = request()->query('includeRelocations');
+      if ($includeRelocations) {
+        $urn = $urn->with('relocations');
+      }
+
+      return new UrnCollection($urn->get());
+    }
+
     /**
      * Update the specified resource in storage.
      */
@@ -172,5 +203,20 @@ class UrnController extends Controller
     public function bulkDelete($urns)
     {
       Urn::destroy($urns);
+    }
+
+    private function updateExpiredUrns() {
+      date_default_timezone_set('Europe/Madrid');
+      $urns = Urn::whereIn('status', ['RESERVED', 'OCCUPIED'])->with('reservations', function($query) {
+        $query->orderBy('end_date', 'DESC')->orderBy('start_date', 'DESC');
+      })->get();
+
+      foreach ($urns as $urn) {
+        if (count($urn->reservations) > 0) {
+          if ($urn->reservations[0]->end_date < date("Y-m-d")) {
+            Urn::where('id', $urn->reservations[0]->urn_id)->update(['status' => 'EXPIRED']);
+          }
+        }
+      }
     }
 }

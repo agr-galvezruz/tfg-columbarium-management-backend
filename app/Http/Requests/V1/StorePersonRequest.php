@@ -32,7 +32,7 @@ class StorePersonRequest extends FormRequest
           'state' => ['required'],
           'postalCode' => ['required'],
           'phone' => ['required'],
-          'maritalStatus' => [Rule::in(['SINGLE','MARRIED','UNION','SEPARATE','DIVORCED','WIDOWER'])]
+          'maritalStatus' => [Rule::in(['SINGLE','MARRIED','UNION','SEPARATE','DIVORCED','WIDOWER']), 'nullable']
         ];
     }
 

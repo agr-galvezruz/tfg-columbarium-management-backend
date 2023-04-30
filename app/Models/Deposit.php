@@ -15,18 +15,19 @@ class Deposit extends Model
       'description',
       'reservation_id',
       'person_id',
-      'casket_id'
+      'casket_id',
+      'deceased_relationship'
     ];
 
     public function person() {
       return $this->belongsTo(Person::class);
     }
 
-    public function urn() {
-      return $this->belongsTo(Urn::class);
+    public function casket() {
+      return $this->belongsTo(Casket::class);
     }
 
     public function reservation() {
-      return $this->hasOne(Reservation::class);
+      return $this->belongsTo(Reservation::class);
     }
 }

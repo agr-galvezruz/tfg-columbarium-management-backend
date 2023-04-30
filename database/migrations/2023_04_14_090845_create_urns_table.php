@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('urns', function (Blueprint $table) {
             $table->id();
             $table->string('internal_code');
-            $table->enum('status', ['OCCUPIED', 'RESERVED', 'AVAILABLE', 'DISABLED']);
+            $table->enum('status', ['OCCUPIED', 'RESERVED', 'EXPIRED', 'AVAILABLE', 'DISABLED']);
             $table->text('description')->nullable();
             $table->unsignedBigInteger('niche_id');
             // $table->foreign('niche_id')->references('id')->on('niches')->onDelete('cascade');

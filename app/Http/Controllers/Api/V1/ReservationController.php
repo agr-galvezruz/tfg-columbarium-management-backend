@@ -9,6 +9,8 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Filters\V1\ReservationFilter;
 use App\Http\Resources\V1\Reservation\ReservationCollection;
+use App\Http\Resources\V1\Reservation\ReservationResource;
+use App\Models\Deposit;
 
 class ReservationController extends Controller
 {
@@ -137,6 +139,14 @@ class ReservationController extends Controller
       return new ReservationCollection($reservations->orderBy('start_date', 'DESC')->orderBy('end_date', 'DESC')->paginate(25)->appends($request->query()));
     }
 
+    public function getAllReservationsWithNoDeposit() {
+      date_default_timezone_set('Europe/Madrid');
+      $reservations = Reservation::where('end_date', '>=', date("Y-m-d"))->doesntHave('deposit')->whereHas('urn', function($query) {
+        $query->whereIn('status', ['RESERVED']);
+      })->with('urn')->with('person')->orderBy('start_date', 'DESC')->orderBy('end_date', 'DESC')->get();
+      return new ReservationCollection($reservations);
+    }
+
     public function getAllAvailableResources() {
       $urns = Urn::where('status', '=', 'AVAILABLE')->with('niche.row.room')->orderBy('internal_code')->get();
       $arrayIds = [
@@ -165,6 +175,45 @@ class ReservationController extends Controller
       }
 
       return $arrayIds;
+    }
+
+    public function getReservationById($reservationId) {
+      $reservation = Reservation::where('id', $reservationId);
+
+      $includePerson = request()->query('includePerson');
+      if ($includePerson) {
+        $reservation = $reservation->with('person');
+      }
+
+      $includeUrn = request()->query('includeUrn');
+      if ($includeUrn) {
+        $reservation = $reservation->with('urn');
+      }
+
+      return new ReservationCollection($reservation->get());
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(Reservation $reservation)
+    {
+      $includeUrn = request()->query('includeUrn');
+      if ($includeUrn) {
+        $reservation = $reservation->loadMissing('urn');
+      }
+
+      $includePerson = request()->query('includePerson');
+      if ($includePerson) {
+        $reservation = $reservation->loadMissing('person');
+      }
+
+      $includeDeposit = request()->query('includeDeposit');
+      if ($includeDeposit) {
+        $reservation = $reservation->loadMissing('deposit');
+      }
+
+      return new ReservationResource($reservation);
     }
 
 
@@ -229,7 +278,11 @@ class ReservationController extends Controller
       $cancelReservation = $request->cancelReservation;
 
       if ($cancelReservation) {
+        date_default_timezone_set('Europe/Madrid');
         $reservation['endDate'] = date("Y-m-d");
+
+        Deposit::where('reservation_id', $reservation['id'])->update(['end_date' => $reservation['endDate']]);
+        $reservation['description'] = 'Reserva cancelada';
       }
 
       Reservation::where('id', $reservation['id'])->update([

@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\V1\Casket;
 
+use App\Http\Resources\V1\Deposit\DepositResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use App\Http\Resources\V1\Person\PersonResource;
@@ -18,7 +19,8 @@ class CasketResource extends JsonResource
       return [
         'id' => $this->id,
         'description' => $this->description,
-        'people' => PersonResource::collection($this->whenLoaded('people'))
+        'people' => PersonResource::collection($this->whenLoaded('people')),
+        'deposits' => DepositResource::collection($this->whenLoaded('deposits')),
       ];
     }
 }

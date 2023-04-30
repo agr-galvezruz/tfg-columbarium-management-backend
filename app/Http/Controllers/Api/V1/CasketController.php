@@ -50,6 +50,13 @@ class CasketController extends Controller
       return new CasketCollection($caskets->paginate(25)->appends($request->query()));
     }
 
+    public function getAllCasketsWithNoDeposit() {
+      $reservations = Casket::whereHas('deposits', function($query) {
+        $query->whereNotNull('end_date');
+      })->orDoesntHave('deposits')->with('people')->get();
+      return new CasketCollection($reservations);
+    }
+
     /**
      * Store a newly created resource in storage.
      */
@@ -145,6 +152,15 @@ class CasketController extends Controller
       return $casket['id'];
     }
 
+    public function getCasketById($casketId) {
+      $casket = Casket::where('id', $casketId);
+      $includePeople = request()->query('includePeople');
+      if($includePeople) {
+        $casket = $casket->with('people');
+      }
+      return new CasketCollection($casket->get());
+    }
+
     /**
      * Display the specified resource.
      */
@@ -153,6 +169,11 @@ class CasketController extends Controller
       $includePeople = request()->query('includePeople');
       if($includePeople) {
         $casket = $casket->loadMissing('people');
+      }
+
+      $includeDeposits = request()->query('includeDeposits');
+      if($includeDeposits) {
+        $casket = $casket->loadMissing('deposits');
       }
 
       return new CasketResource($casket);

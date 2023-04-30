@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\V1\Reservation;
 
+use App\Http\Resources\V1\Deposit\DepositResource;
 use App\Http\Resources\V1\Person\PersonResource;
 use App\Http\Resources\V1\Urn\UrnResource;
 use Illuminate\Http\Request;
@@ -24,7 +25,8 @@ class ReservationResource extends JsonResource
         'urnId' => $this->urn_id,
         'personId' => $this->person_id,
         'person' => new PersonResource($this->whenLoaded('person')),
-        'urn' => new UrnResource($this->whenLoaded('urn'))
+        'urn' => new UrnResource($this->whenLoaded('urn')),
+        'deposit' => new DepositResource($this->whenLoaded('deposit'))
       ];
     }
 }

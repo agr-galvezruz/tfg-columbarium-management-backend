@@ -24,7 +24,7 @@ class StoreUrnRequest extends FormRequest
     {
       return [
         'internalCode' => ['required', 'unique:urns,internal_code,NULL,id,niche_id,'. $this->niche_id],
-        'status' => ['required', Rule::in(['OCCUPIED', 'RESERVED', 'AVAILABLE', 'DISABLED'])],
+        'status' => ['required', Rule::in(['OCCUPIED', 'RESERVED', 'EXPIRED', 'AVAILABLE', 'DISABLED'])],
         'nicheId' => ['required']
       ];
     }

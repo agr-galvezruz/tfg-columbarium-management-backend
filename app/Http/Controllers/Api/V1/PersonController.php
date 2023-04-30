@@ -97,6 +97,28 @@ class PersonController extends Controller
       return new PersonResource($person);
     }
 
+    public function getPersonById($personId)
+    {
+      $person = Person::where('id', $personId);
+
+      $includeCasket = request()->query('includeCasket');
+      if($includeCasket) {
+        $person = $person->with('casket');
+      }
+
+      $includeUser = request()->query('includeUser');
+      if($includeUser) {
+        $person = $person->with('user');
+      }
+
+      $includeReservations = request()->query('includeReservations');
+      if($includeReservations) {
+        $person = $person->with('reservations');
+      }
+
+      return new PersonCollection($person->get());
+    }
+
     /**
      * Update the specified resource in storage.
      */
