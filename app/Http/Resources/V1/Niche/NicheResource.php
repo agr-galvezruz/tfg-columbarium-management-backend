@@ -20,6 +20,7 @@ class NicheResource extends JsonResource
         'id' => $this->id,
         'internalCode' => $this->internal_code,
         'storageQuantity' => $this->storage_quantity,
+        'storageRows' => $this->storage_rows,
         'description' => $this->description,
         'rowId' => $this->row_id,
         'row' => new RowResource($this->whenLoaded('row')),

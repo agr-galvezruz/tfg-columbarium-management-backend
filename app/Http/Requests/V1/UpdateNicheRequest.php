@@ -26,6 +26,7 @@ class UpdateNicheRequest extends FormRequest
         return [
           'internalCode' => ['required', 'unique:niches,internal_code,'. $this->id .',id,row_id,'. $this->row_id],
           'storageQuantity' => ['required'],
+          'storageRows' => ['required'],
           'row_id' => ['required']
         ];
       }
@@ -35,6 +36,7 @@ class UpdateNicheRequest extends FormRequest
       $this->merge([
         'internal_code' => $this->internalCode,
         'storage_quantity' => $this->storageQuantity,
+        'storage_rows' => $this->storageRows,
         'row_id' => $this->rowId
       ]);
     }

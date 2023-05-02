@@ -114,6 +114,60 @@ class NicheController extends Controller
       return $niche;
     }
 
+    public function getNichesStatus() {
+      $nichesStatus = [
+        'available' => [],
+        'reserved' => [],
+        'expired' => [],
+        'occupied' => [],
+        'disabled' => []
+      ];
+
+      $niches = Niche::whereBetween('row_id', [1, 3])->whereBetween('id', [1, 165])->with('urns')->get();
+      foreach ($niches as $niche) {
+        $contAvailable = 0;
+        $contReserved = 0;
+        $contExpired = 0;
+        $contOccupied = 0;
+        $contDisabled = 0;
+
+        foreach ($niche->urns as $urn) {
+          if ($urn->status === 'AVAILABLE') {
+            $contAvailable++;
+          } else if ($urn->status === 'RESERVED') {
+            $contReserved++;
+          } else if ($urn->status === 'EXPIRED') {
+            $contExpired++;
+          } else if ($urn->status === 'OCCUPIED') {
+            $contOccupied++;
+          } else {
+            $contDisabled++;
+          }
+        }
+
+        if ($contAvailable > 0) {
+          $nichesStatus['available'][] = $niche->id;
+        } else if ($contReserved > 0) {
+          $nichesStatus['reserved'][] = $niche->id;
+        } else if ($contExpired > 0) {
+          $nichesStatus['expired'][] = $niche->id;
+        } else if ($contOccupied > 0) {
+          $nichesStatus['occupied'][] = $niche->id;
+        } else {
+          $nichesStatus['disabled'][] = $niche->id;
+        }
+      }
+
+      return $nichesStatus;
+    }
+
+    public function getNicheWithUrns($nicheId) {
+      $niche = Niche::where('id', $nicheId)->with('urns', function($query) {
+        $query->orderBy('internal_code', 'ASC');
+      })->first();
+      return new NicheResource($niche);
+    }
+
     /**
      * Display the specified resource.
      */

@@ -12,6 +12,7 @@ class Niche extends Model
     protected $fillable = [
       'internal_code',
       'storage_quantity',
+      'storage_rows',
       'description',
       'row_id'
     ];

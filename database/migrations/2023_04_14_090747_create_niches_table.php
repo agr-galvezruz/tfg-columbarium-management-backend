@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('internal_code');
             $table->integer('storage_quantity');
+            $table->integer('storage_rows');
             $table->text('description')->nullable();
             $table->unsignedBigInteger('row_id');
             // $table->foreign('row_id')->references('id')->on('rows')->onDelete('cascade');

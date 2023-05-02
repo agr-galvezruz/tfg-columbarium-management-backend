@@ -53,6 +53,8 @@ Route::group(['prefix' => 'v1', 'mamespace' => 'App\Http\Controllers\Api\V1', 'm
 
   Route::post('/niches/getAllNichesByIdAndRow', [NicheController::class, 'getAllNichesByIdAndRow']);
   Route::get('/niches/getNichesFromRow', [NicheController::class, 'getNichesFromRow']);
+  Route::get('/niches/getNichesStatus', [NicheController::class, 'getNichesStatus']);
+  Route::get('/niches/getNicheWithUrns/{nicheId}', [NicheController::class, 'getNicheWithUrns']);
   Route::get('/niches/getAllNichesFromRowNoPagination/{rowId}', [NicheController::class, 'getAllNichesFromRowNoPagination']);
   Route::apiResource('niches', NicheController::class);
 

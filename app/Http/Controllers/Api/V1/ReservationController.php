@@ -52,11 +52,13 @@ class ReservationController extends Controller
         $filterByUrnString = $urnFilter['like'] ?? $anyFilter;
         $reservations = $reservations->orWhereHas('urn', function($query) use ($filterByUrnString) {
           $query->where('internal_code', 'like', '%'.$filterByUrnString.'%');
-        })->with('urn');
+        })->with('urn.niche.row.room.building');
 
       } else {
-        $reservations = $reservations->with('urn');
+        $reservations = $reservations->with('urn.niche.row.room.building');
       }
+
+      $reservations = $reservations->with('deposit');
 
       if ($anyFilter) {
         $reservations = $reservations->orWhere('start_date', 'like', '%'.$anyFilter.'%')
@@ -107,10 +109,10 @@ class ReservationController extends Controller
         $filterByUrnString = $urnFilter['like'] ?? $anyFilter;
         $reservations = $reservations->orWhereHas('urn', function($query) use ($filterByUrnString) {
           $query->where('internal_code', 'like', '%'.$filterByUrnString.'%');
-        })->with('urn');
+        })->with('urn.niche.row.room.building');
 
       } else {
-        $reservations = $reservations->with('urn');
+        $reservations = $reservations->with('urn.niche.row.room.building');
       }
 
       if ($anyFilter) {
@@ -133,7 +135,7 @@ class ReservationController extends Controller
       [$AndFilterItems, $OrFilterItems] = $filter->transform($request); //[['column', 'operator', 'value']]
 
       $reservations = Reservation::where('person_id', '=', $personId)->where($AndFilterItems)->where($OrFilterItems);
-      $reservations = $reservations->with('urn');
+      $reservations = $reservations->with('urn.niche.row.room.building');
       $reservations = $reservations->with('person');
 
       return new ReservationCollection($reservations->orderBy('start_date', 'DESC')->orderBy('end_date', 'DESC')->paginate(25)->appends($request->query()));
@@ -187,7 +189,7 @@ class ReservationController extends Controller
 
       $includeUrn = request()->query('includeUrn');
       if ($includeUrn) {
-        $reservation = $reservation->with('urn');
+        $reservation = $reservation->with('urn.niche.row.room.building');
       }
 
       return new ReservationCollection($reservation->get());
@@ -200,7 +202,7 @@ class ReservationController extends Controller
     {
       $includeUrn = request()->query('includeUrn');
       if ($includeUrn) {
-        $reservation = $reservation->loadMissing('urn');
+        $reservation = $reservation->loadMissing('urn.niche.row.room.building');
       }
 
       $includePerson = request()->query('includePerson');
@@ -277,12 +279,21 @@ class ReservationController extends Controller
       $reservation = $request->reservationData;
       $cancelReservation = $request->cancelReservation;
 
+      // If Urn has been changed
+      $currentReservation = Reservation::where('id', $reservation['id'])->with('urn')->first();
+      if ($currentReservation->urn_id != $reservation['urnId']) {
+        Urn::where('id', $currentReservation->urn_id)->update(['status' => 'AVAILABLE']); // Current urn
+        Urn::where('id', $reservation['urnId'])->update(['status' => 'RESERVED']); // New urn
+        $newUrn = Urn::where('id', $reservation['urnId'])->first(); // Get new Urn data
+        $reservation['description'] = $reservation['description'].'<div>Reserva de urna cambiada: de <b>'.$currentReservation->urn->internal_code.'</b> a <b>'.$newUrn->internal_code.'</b></div>';
+      }
+
       if ($cancelReservation) {
         date_default_timezone_set('Europe/Madrid');
         $reservation['endDate'] = date("Y-m-d");
 
         Deposit::where('reservation_id', $reservation['id'])->update(['end_date' => $reservation['endDate']]);
-        $reservation['description'] = 'Reserva cancelada';
+        $reservation['description'] = $reservation['description'].'<div>Reserva cancelada</div>';
       }
 
       Reservation::where('id', $reservation['id'])->update([
