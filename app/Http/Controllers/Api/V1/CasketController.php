@@ -50,11 +50,18 @@ class CasketController extends Controller
       return new CasketCollection($caskets->paginate(25)->appends($request->query()));
     }
 
-    public function getAllCasketsWithNoDeposit() {
-      $reservations = Casket::whereHas('deposits', function($query) {
-        $query->whereNotNull('end_date');
-      })->orDoesntHave('deposits')->with('people')->get();
-      return new CasketCollection($reservations);
+    public function getAllCasketsWithNoDeposit(Request $request) {
+      $includeCasketId = $request->query('includeCasketId');
+      if ($includeCasketId) {
+        $caskets = Casket::where('id', $includeCasketId)->orWhereHas('deposits', function($query) {
+          $query->whereNotNull('end_date');
+        })->orDoesntHave('deposits')->with('people')->get();
+      } else {
+        $caskets = Casket::whereHas('deposits', function($query) {
+          $query->whereNotNull('end_date');
+        })->orDoesntHave('deposits')->with('people')->get();
+      }
+      return new CasketCollection($caskets);
     }
 
     /**

@@ -141,11 +141,19 @@ class ReservationController extends Controller
       return new ReservationCollection($reservations->orderBy('start_date', 'DESC')->orderBy('end_date', 'DESC')->paginate(25)->appends($request->query()));
     }
 
-    public function getAllReservationsWithNoDeposit() {
+    public function getAllReservationsWithNoDeposit(Request $request) {
       date_default_timezone_set('Europe/Madrid');
-      $reservations = Reservation::where('end_date', '>=', date("Y-m-d"))->doesntHave('deposit')->whereHas('urn', function($query) {
-        $query->whereIn('status', ['RESERVED']);
-      })->with('urn')->with('person')->orderBy('start_date', 'DESC')->orderBy('end_date', 'DESC')->get();
+
+      $includeReservationId = $request->query('includeReservationId');
+      if ($includeReservationId) {
+        $reservations = Reservation::where('id', $includeReservationId)->orWhere('end_date', '>=', date("Y-m-d"))->doesntHave('deposit')->whereHas('urn', function($query) {
+          $query->whereIn('status', ['RESERVED']);
+        })->with('urn')->with('person')->orderBy('start_date', 'DESC')->orderBy('end_date', 'DESC')->get();
+      } else {
+        $reservations = Reservation::where('end_date', '>=', date("Y-m-d"))->doesntHave('deposit')->whereHas('urn', function($query) {
+          $query->whereIn('status', ['RESERVED']);
+        })->with('urn')->with('person')->orderBy('start_date', 'DESC')->orderBy('end_date', 'DESC')->get();
+      }
       return new ReservationCollection($reservations);
     }
 
@@ -277,23 +285,61 @@ class ReservationController extends Controller
     public function updateReservation(Request $request)
     {
       $reservation = $request->reservationData;
+      $person = $request->personForm;
       $cancelReservation = $request->cancelReservation;
 
-      // If Urn has been changed
-      $currentReservation = Reservation::where('id', $reservation['id'])->with('urn')->first();
-      if ($currentReservation->urn_id != $reservation['urnId']) {
-        Urn::where('id', $currentReservation->urn_id)->update(['status' => 'AVAILABLE']); // Current urn
-        Urn::where('id', $reservation['urnId'])->update(['status' => 'RESERVED']); // New urn
-        $newUrn = Urn::where('id', $reservation['urnId'])->first(); // Get new Urn data
-        $reservation['description'] = $reservation['description'].'<div>Reserva de urna cambiada: de <b>'.$currentReservation->urn->internal_code.'</b> a <b>'.$newUrn->internal_code.'</b></div>';
+      $personCreatedId = null;
+      if ($person['tabSelected'] == 'add') {
+        $personCreated = Person::create([
+          'dni' => $person['newPersonData']['dni'],
+          'first_name' => $person['newPersonData']['firstName'],
+          'last_name_1' => $person['newPersonData']['lastName1'],
+          'last_name_2' => $person['newPersonData']['lastName2'],
+          'address' => $person['newPersonData']['address'],
+          'city' => $person['newPersonData']['city'],
+          'state' => $person['newPersonData']['state'],
+          'postal_code' => $person['newPersonData']['postalCode'],
+          'phone' => $person['newPersonData']['phone'],
+          'email' => $person['newPersonData']['email'],
+          'marital_status' => $person['newPersonData']['maritalStatus'],
+          'birthdate' => $person['newPersonData']['birthdate'],
+          'deathdate' => $person['newPersonData']['deathdate'],
+          'casket_id' => null
+        ]);
+        $personCreatedId = $personCreated->id;
+      }
+      else if ($person['tabSelected'] == 'select') {
+        $personCreated = $person['personSelected'];
+        $personCreatedId = $personCreated['id'];
       }
 
-      if ($cancelReservation) {
-        date_default_timezone_set('Europe/Madrid');
-        $reservation['endDate'] = date("Y-m-d");
+      $currentReservation = Reservation::where('id', $reservation['id'])->with('urn')->with('deposit')->with('person')->first();
 
-        Deposit::where('reservation_id', $reservation['id'])->update(['end_date' => $reservation['endDate']]);
-        $reservation['description'] = $reservation['description'].'<div>Reserva cancelada</div>';
+      if (!$currentReservation->deposit) {
+        // If Urn has been changed
+        if ($currentReservation->urn_id != $reservation['urnId']) {
+          Urn::where('id', $currentReservation->urn_id)->update(['status' => 'AVAILABLE']); // Current urn
+          Urn::where('id', $reservation['urnId'])->update(['status' => 'RESERVED']); // New urn
+          $newUrn = Urn::where('id', $reservation['urnId'])->first(); // Get new Urn data
+          $reservation['description'] .= '<div>Reserva de urna cambiada: de <b>'.$currentReservation->urn->internal_code.'</b> a <b>'.$newUrn->internal_code.'</b></div>';
+        }
+
+        // If Reservaton has been cancelled
+        if ($cancelReservation) {
+          date_default_timezone_set('Europe/Madrid');
+          $reservation['endDate'] = date("Y-m-d");
+
+          Deposit::where('reservation_id', $reservation['id'])->update(['end_date' => $reservation['endDate']]);
+          $reservation['description'] .= '<div>Reserva cancelada</div>';
+        }
+      }
+
+      if ($currentReservation->deposit) {
+        // If Person has been changed
+        if ($currentReservation->person_id != $personCreatedId) {
+          $newPerson = Person::where('id', $personCreatedId)->first();
+          $reservation['description'] .= '<div>El titular de la reserva ha cambiado de <b>'.$currentReservation->person->first_name.' '.$currentReservation->person->last_name_1.' '.$currentReservation->person->last_name_2.'</b> a <b>'.$newPerson->first_name.' '.$newPerson->last_name_1.' '.$newPerson->last_name_2.'</b>.</div>';
+        }
       }
 
       Reservation::where('id', $reservation['id'])->update([
@@ -301,7 +347,7 @@ class ReservationController extends Controller
         'end_date' => $reservation['endDate'],
         'description' => $reservation['description'],
         'urn_id' => $reservation['urnId'],
-        'person_id' => $reservation['personId']
+        'person_id' => $personCreatedId
       ]);
 
       if ($cancelReservation) {

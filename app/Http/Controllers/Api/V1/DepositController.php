@@ -243,6 +243,37 @@ class DepositController extends Controller
     public function updateDeposit(Request $request)
     {
       $deposit = $request->depositData;
+      $person = $request->personForm;
+      $transferDeposit = $request->transferDeposit;
+
+      $personCreatedId = null;
+      if ($person['tabSelected'] == 'add') {
+        $personCreated = Person::create([
+          'dni' => $person['newPersonData']['dni'],
+          'first_name' => $person['newPersonData']['firstName'],
+          'last_name_1' => $person['newPersonData']['lastName1'],
+          'last_name_2' => $person['newPersonData']['lastName2'],
+          'address' => $person['newPersonData']['address'],
+          'city' => $person['newPersonData']['city'],
+          'state' => $person['newPersonData']['state'],
+          'postal_code' => $person['newPersonData']['postalCode'],
+          'phone' => $person['newPersonData']['phone'],
+          'email' => $person['newPersonData']['email'],
+          'marital_status' => $person['newPersonData']['maritalStatus'],
+          'birthdate' => $person['newPersonData']['birthdate'],
+          'deathdate' => $person['newPersonData']['deathdate'],
+          'casket_id' => null
+        ]);
+        $personCreatedId = $personCreated->id;
+      }
+      else if ($person['tabSelected'] == 'select') {
+        $personCreated = $person['personSelected'];
+        $personCreatedId = $personCreated['id'];
+      }
+
+      if ($transferDeposit) {
+        $deposit['description'] .= '<div><b>Traslado externo</b> del depósito</div>';
+      }
 
       Deposit::where('id', $deposit['id'])->update([
         'start_date' => $deposit['startDate'],
@@ -251,8 +282,14 @@ class DepositController extends Controller
         'deceased_relationship' => $deposit['deceasedRelationship'],
         'casket_id' => $deposit['casketId'],
         'reservation_id' => $deposit['reservationId'],
-        'person_id' => $deposit['personId']
+        'person_id' => $personCreatedId
       ]);
+
+      if ($transferDeposit) {
+        $currentReservation = Reservation::where('id', $deposit['reservationId'])->first();
+        Reservation::where('id', $deposit['reservationId'])->update(['end_date' => $deposit['endDate']]);
+        Urn::where('id', $currentReservation->urn_id)->update(['status' => 'AVAILABLE']);
+      }
     }
 
 
