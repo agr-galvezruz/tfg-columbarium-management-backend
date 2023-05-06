@@ -10,6 +10,7 @@ use App\Http\Requests\V1\StoreCasketRequest;
 use App\Http\Resources\V1\Casket\CasketResource;
 use App\Http\Resources\V1\Casket\CasketCollection;
 use App\Models\Person;
+use App\Models\Reservation;
 
 class CasketController extends Controller
 {
@@ -61,6 +62,23 @@ class CasketController extends Controller
           $query->whereNotNull('end_date');
         })->orDoesntHave('deposits')->with('people')->get();
       }
+      return new CasketCollection($caskets);
+    }
+
+    public function getAllCasketsWithExpiredReservation(Request $request) {
+      $relocationDate = $request->query('relocationDate');
+      $includeCasketId = $request->query('includeCasketId');
+      $reservations = Reservation::where('end_date', '<', $relocationDate)->whereHas('deposit', function($query) {
+        $query->whereNull('end_date');
+      })->whereHas('urn')->with('deposit')->get();
+      $casketIds = [];
+      foreach ($reservations as $reservation) {
+        $casketIds[] = $reservation->deposit->casket_id;
+      }
+
+      if ($includeCasketId) $casketIds[] = $includeCasketId;
+
+      $caskets = Casket::whereIn('id', $casketIds)->with('people')->get();
       return new CasketCollection($caskets);
     }
 
@@ -181,6 +199,11 @@ class CasketController extends Controller
       $includeDeposits = request()->query('includeDeposits');
       if($includeDeposits) {
         $casket = $casket->loadMissing('deposits');
+      }
+
+      $includeRelocations = request()->query('includeRelocations');
+      if($includeRelocations) {
+        $casket = $casket->loadMissing('relocations');
       }
 
       return new CasketResource($casket);

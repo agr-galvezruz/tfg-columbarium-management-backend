@@ -157,6 +157,23 @@ class ReservationController extends Controller
       return new ReservationCollection($reservations);
     }
 
+    public function getAllReservationsWithDepositInDate(Request $request) {
+      $relocationDate = $request->query('relocationDate');
+      // $includeReservationId = $request->query('includeReservationId');
+      // if ($includeReservationId) {
+      //   $reservations = Reservation::where('id', $includeReservationId)->orWhere('end_date', '>=', date("Y-m-d"))->doesntHave('deposit')->whereHas('urn', function($query) {
+      //     $query->whereIn('status', ['RESERVED']);
+      //   })->with('urn')->with('person')->orderBy('start_date', 'DESC')->orderBy('end_date', 'DESC')->get();
+      // } else {
+        $reservations = Reservation::where('start_date', '<=', $relocationDate)->where('end_date', '>=', $relocationDate)->whereHas('deposit', function($query) {
+          $query->whereNull('end_date');
+        })->whereHas('urn', function($query) {
+          $query->whereIn('status', ['OCCUPIED']);
+        })->with('urn')->with('person')->orderBy('start_date', 'DESC')->orderBy('end_date', 'DESC')->get();
+      // }
+      return new ReservationCollection($reservations);
+    }
+
     public function getAllAvailableResources() {
       $urns = Urn::where('status', '=', 'AVAILABLE')->with('niche.row.room')->orderBy('internal_code')->get();
       $arrayIds = [

@@ -6,6 +6,7 @@ use App\Http\Resources\V1\Deposit\DepositResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use App\Http\Resources\V1\Person\PersonResource;
+use App\Http\Resources\V1\Relocation\RelocationResource;
 
 class CasketResource extends JsonResource
 {
@@ -21,6 +22,7 @@ class CasketResource extends JsonResource
         'description' => $this->description,
         'people' => PersonResource::collection($this->whenLoaded('people')),
         'deposits' => DepositResource::collection($this->whenLoaded('deposits')),
+        'relocations' => RelocationResource::collection($this->whenLoaded('relocations')),
       ];
     }
 }

@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\V1\PersonController;
 use App\Http\Controllers\Api\V1\BuildingController;
 use App\Http\Controllers\Api\V1\DepositController;
 use App\Http\Controllers\Api\V1\ProvinceController;
+use App\Http\Controllers\Api\V1\RelocationController;
 use App\Http\Controllers\Api\V1\ReservationController;
 
 /*
@@ -70,6 +71,7 @@ Route::group(['prefix' => 'v1', 'mamespace' => 'App\Http\Controllers\Api\V1', 'm
 
   Route::get('/caskets/getCasketById/{casketId}', [CasketController::class, 'getCasketById']);
   Route::get('/caskets/getAllCasketsWithNoDeposit', [CasketController::class, 'getAllCasketsWithNoDeposit']);
+  Route::get('/caskets/getAllCasketsWithExpiredReservation', [CasketController::class, 'getAllCasketsWithExpiredReservation']);
   Route::post('/caskets/createCasketWithPeople', [CasketController::class, 'createCasketWithPeople']);
   Route::post('/caskets/updateCasketWithPeople', [CasketController::class, 'updateCasketWithPeople']);
   Route::apiResource('caskets', CasketController::class);
@@ -86,6 +88,7 @@ Route::group(['prefix' => 'v1', 'mamespace' => 'App\Http\Controllers\Api\V1', 'm
   Route::post('/reservations/updateReservation/', [ReservationController::class, 'updateReservation']);
   Route::get('/reservations/getReservationById/{reservationId}', [ReservationController::class, 'getReservationById']);
   Route::get('/reservations/getAllReservationsFromPerson/', [ReservationController::class, 'getAllReservationsFromPerson']);
+  Route::get('/reservations/getAllReservationsWithDepositInDate/', [ReservationController::class, 'getAllReservationsWithDepositInDate']);
   Route::get('/reservations/getAllReservationsFromUrn/', [ReservationController::class, 'getAllReservationsFromUrn']);
   Route::get('/reservations/getAllAvailableResources/', [ReservationController::class, 'getAllAvailableResources']);
   Route::apiResource('reservations', ReservationController::class);
@@ -95,5 +98,12 @@ Route::group(['prefix' => 'v1', 'mamespace' => 'App\Http\Controllers\Api\V1', 'm
   Route::get('/deposits/getDepositByReservationId/{reservationId}', [DepositController::class, 'getDepositByReservationId']);
   Route::get('/deposits/getDepositByPersonId/{personId}', [DepositController::class, 'getDepositByPersonId']);
   Route::get('/deposits/getDepositByCasketId/{casketId}', [DepositController::class, 'getDepositByCasketId']);
+  Route::get('/deposits/getDepositByUrnId/{urnId}', [DepositController::class, 'getDepositByUrnId']);
   Route::apiResource('deposits', DepositController::class);
+
+  Route::get('/relocations/getAllRelocationsByCasket/{casketId}', [RelocationController::class, 'getAllRelocationsByCasket']);
+  Route::get('/relocations/getAllRelocationsByUrn/{urnId}', [RelocationController::class, 'getAllRelocationsByUrn']);
+  Route::post('/relocations/createRelocation/', [RelocationController::class, 'createRelocation']);
+  Route::post('/relocations/updateRelocation/', [RelocationController::class, 'updateRelocation']);
+  Route::apiResource('relocations', RelocationController::class);
 });

@@ -113,6 +113,35 @@ class DepositController extends Controller
       return new DepositCollection($deposit->get());
     }
 
+    public function getDepositByUrnId($urnId) {
+      $reservations = Reservation::where('urn_id', $urnId)->with('deposit')->get();
+
+      $depositsIds = [];
+      foreach ($reservations as $reserva) {
+        $depositsIds[] = $reserva->deposit->id;
+      }
+
+      $deposit = Deposit::whereIn('id', $depositsIds);
+
+      $includePerson = request()->query('includePerson');
+      if ($includePerson) {
+        $deposit = $deposit->with('person');
+      }
+
+      $includeCasket = request()->query('includeCasket');
+      if ($includeCasket) {
+        $deposit = $deposit->with('casket.people');
+      }
+
+      $includeReservation = request()->query('includeReservation');
+      if ($includeReservation) {
+        $deposit = $deposit->with('reservation.urn');
+        $deposit = $deposit->with('reservation.person');
+      }
+
+      return new DepositCollection($deposit->get());
+    }
+
     public function getDepositByPersonId($personId) {
       $deposits = Deposit::where('person_id', $personId);
 

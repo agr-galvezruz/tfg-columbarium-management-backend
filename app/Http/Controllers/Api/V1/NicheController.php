@@ -164,7 +164,7 @@ class NicheController extends Controller
     public function getNicheWithUrns($nicheId) {
       $niche = Niche::where('id', $nicheId)->with('urns', function($query) {
         $query->orderBy('internal_code', 'ASC');
-      })->first();
+      })->with('urns.relocations')->first();
       return new NicheResource($niche);
     }
 
