@@ -115,6 +115,7 @@ class NicheController extends Controller
     }
 
     public function getNichesStatus() {
+      (new UrnController)->updateExpiredUrns();
       $nichesStatus = [
         'available' => [],
         'reserved' => [],

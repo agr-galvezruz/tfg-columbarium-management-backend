@@ -23,7 +23,7 @@ class StorePersonRequest extends FormRequest
     public function rules(): array
     {
         return [
-          'dni' => ['required', 'unique:people,dni'],
+          'dni' => ['nullable', 'unique:people,dni'],
           'firstName' => ['required'],
           'lastName1' => ['required'],
           'lastName2' => ['required'],
@@ -31,7 +31,6 @@ class StorePersonRequest extends FormRequest
           'city' => ['required'],
           'state' => ['required'],
           'postalCode' => ['required'],
-          'phone' => ['required'],
           'maritalStatus' => [Rule::in(['SINGLE','MARRIED','UNION','SEPARATE','DIVORCED','WIDOWER']), 'nullable']
         ];
     }

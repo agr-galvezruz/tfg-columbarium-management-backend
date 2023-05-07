@@ -25,7 +25,7 @@ class UpdatePersonRequest extends FormRequest
       $method = $this->method();
       if ($method == 'PUT') {
         return [
-          'dni' => ['required', 'unique:people,dni,'. $this->id .',id'],
+          'dni' => ['nullable', 'unique:people,dni,'. $this->id .',id'],
           'firstName' => ['required'],
           'lastName1' => ['required'],
           'lastName2' => ['required'],
@@ -33,7 +33,6 @@ class UpdatePersonRequest extends FormRequest
           'city' => ['required'],
           'state' => ['required'],
           'postalCode' => ['required'],
-          'phone' => ['required'],
           'maritalStatus' => [Rule::in(['SINGLE','MARRIED','UNION','SEPARATE','DIVORCED','WIDOWER']), 'nullable']
         ];
       }

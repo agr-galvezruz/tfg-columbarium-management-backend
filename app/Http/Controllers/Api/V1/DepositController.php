@@ -118,7 +118,9 @@ class DepositController extends Controller
 
       $depositsIds = [];
       foreach ($reservations as $reserva) {
-        $depositsIds[] = $reserva->deposit->id;
+        if ($reserva->deposit) {
+          $depositsIds[] = $reserva->deposit->id;
+        }
       }
 
       $deposit = Deposit::whereIn('id', $depositsIds);

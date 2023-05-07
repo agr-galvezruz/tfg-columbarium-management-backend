@@ -53,6 +53,7 @@ class UrnController extends Controller
      */
     public function getUrnsFromNiche(Request $request)
     {
+      $this->updateExpiredUrns();
       $nicheId = $request->query('nicheId');
       if (!$nicheId) {
         return [];
@@ -92,6 +93,7 @@ class UrnController extends Controller
      */
     public function getAllUrnsByIdAndNiche(Request $request)
     {
+      $this->updateExpiredUrns();
       $niche_id = $request->nicheId;
       $urn_ids = $request->urnIds;
 
@@ -143,6 +145,7 @@ class UrnController extends Controller
 
     public function getUrnById($urnId)
     {
+      $this->updateExpiredUrns();
       $urn = Urn::where('id', $urnId);
       $includeNiche = request()->query('includeNiche');
       $includeRow = request()->query('includeRow');
@@ -205,7 +208,7 @@ class UrnController extends Controller
       Urn::destroy($urns);
     }
 
-    private function updateExpiredUrns() {
+    public function updateExpiredUrns() {
       date_default_timezone_set('Europe/Madrid');
       $urns = Urn::whereIn('status', ['RESERVED', 'OCCUPIED'])->with('reservations', function($query) {
         $query->orderBy('end_date', 'DESC')->orderBy('start_date', 'DESC');

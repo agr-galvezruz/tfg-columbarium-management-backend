@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('people', function (Blueprint $table) {
             $table->id();
-            $table->string('dni')->unique();
+            $table->string('dni')->unique()->nullable();
             $table->string('first_name');
             $table->string('last_name_1');
             $table->string('last_name_2');
@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('city');
             $table->string('state');
             $table->string('postal_code');
-            $table->string('phone');
+            $table->string('phone')->nullable();
             $table->string('email')->nullable();
             $table->enum('marital_status', ['SINGLE', 'MARRIED', 'UNION', 'SEPARATE', 'DIVORCED', 'WIDOWER'])->nullable();
             $table->date('birthdate')->nullable();
